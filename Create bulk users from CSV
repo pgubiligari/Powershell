@@ -1,0 +1,56 @@
+Import-Module activedirectory
+
+$NewUsers=Import-csv C:\bulkuser.csv #file location
+
+foreach ($User in $NewUsers)
+{
+#Modify based on the type of fields in the CSV file
+    $Firstname         = $User.firstname
+    $Lastname          = $User.lastname
+    $Username          = $User.username
+    $email             = $User.email
+    $city              = $User.city
+    $state             = $User.state
+    $country           = $User.country
+    $department        = $User.department
+    $Password          = $User.password
+    $jobtitle          = $User.jobtitle
+    $company           = $User.company
+    $OU                = $User.ou
+    $Passsword         = $User.Password
+
+    If (Get-ADUser -Filter {SamAccountName -eq $Username})
+    {
+        Write-Warning  "This user already exists with the username $Username."
+    }
+    
+   else
+	{
+   
+   #Modify based on the type of fields in the CSV file
+            New-ADUser `
+            -SamAccountName $Username `
+            -UserPrincipalName "$Username@adatum.com" `
+            -Name "$Firstname $Lastname" `
+            -GivenName $Firstname `
+            -Surname $Lastname `
+            -Enabled $True `
+            -DisplayName "$Lastname, $Firstname" `
+            -Path $OU `
+            -City $city `
+            -Company $company `
+            -State $state `
+            -EmailAddress $email `
+            -Title $jobtitle `
+            -Department $department `
+            -AccountPassword (convertto-securestring $Password -AsPlainText -Force) -ChangePasswordAtLogon $True
+
+
+            Write-Host "Account sucessfully created for $Firstname $Lastname"
+
+
+   
+     }
+
+
+}
